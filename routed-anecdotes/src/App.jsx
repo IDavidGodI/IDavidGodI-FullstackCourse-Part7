@@ -3,7 +3,9 @@ import { useState } from 'react'
 import { Navigate } from 'react-router-dom'
 import { useParams } from 'react-router-dom'
 import { useNavigate } from 'react-router-dom'
-import { BrowserRouter as Router, Routes, Route, Link } from 'react-router-dom'
+import { Routes, Route, Link } from 'react-router-dom'
+import {useField} from "./hooks"
+
 const Menu = () => {
   const padding = {
     paddingRight: 5
@@ -36,8 +38,6 @@ const Anecdote = ({anecdotes})=>{
   const anecdote = anecdotes.find(a=> a.id==id);
   const navigate = useNavigate()
   useEffect(()=>{
-
-    console.log("amnecdote", anecdote)
     if (!anecdote) {
       navigate("/")
     }
@@ -82,19 +82,25 @@ const Footer = () => (
 )
 
 const CreateNew = (props) => {
-  const [content, setContent] = useState('')
-  const [author, setAuthor] = useState('')
-  const [info, setInfo] = useState('')
-
+  
+  const content = useField()
+  const author = useField()
+  const info = useField()
 
   const handleSubmit = (e) => {
     e.preventDefault()
     props.addNew({
-      content,
-      author,
-      info,
+      content: content.fieldProps.value,
+      author: author.fieldProps.value,
+      info: info.fieldProps.value,
       votes: 0
     })
+  }
+
+  const resetForm = ()=>{
+    content.reset()
+    author.reset()
+    info.reset()
   }
 
   return (
@@ -103,17 +109,18 @@ const CreateNew = (props) => {
       <form onSubmit={handleSubmit}>
         <div>
           content
-          <input name='content' value={content} onChange={(e) => setContent(e.target.value)} />
+          <input name='content' {...content.fieldProps} />
         </div>
         <div>
           author
-          <input name='author' value={author} onChange={(e) => setAuthor(e.target.value)} />
+          <input name='author' {...author.fieldProps} />
         </div>
         <div>
           url for more info
-          <input name='info' value={info} onChange={(e)=> setInfo(e.target.value)} />
+          <input name='info' {...info.fieldProps} />
         </div>
-        <button>create</button>
+        <button type="submit">create</button>
+        <button type="button" onClick={resetForm}>reset</button>
       </form>
     </div>
   )
@@ -124,7 +131,7 @@ const Notificacion = ({text})=>{
   const style = {
     backgroundColor:"#f8f8f8",
     border: "solid 2px",
-    borderColor: "#efefef",
+    borderColor: "#9f9f9f",
     padding: "0.4rem"
   }
   return (
